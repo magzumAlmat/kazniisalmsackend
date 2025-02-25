@@ -1,0 +1,45 @@
+// команда для первого запуска контейнера 
+docker-compose up --build 
+// команда для последующего запуска docker-compose 
+docker-compose up
+
+// установка sequelize с доп библиотеками ( драйвер PostgreSQL (pg), и дополнительный модуль (pg-hstore), который используется для хранения данных в формате hstore.)
+npm install sequelize pg pg-hstore
+
+//дополнительный пакет Sequelize CLI, который предоставляет команды для создания и выполнения миграций.
+npm install sequelize-cli
+
+// создание миграции для модели
+npx sequelize-cli migration:generate --name <имя_миграции>
+
+// запускает файлы миграции для того чтобы они появились в db
+npx sequelize-cli db:migrate
+
+// для создания файла seed
+npx sequelize-cli seed:generate --name <SeederName>
+
+
+// для запуска seed
+npx sequelize-cli db:seed --seed <seed-file-name>
+
+
+
+запуск на серваке
+
+NODE_ENV=production npx sequelize db:migrate
+
+NODE_ENV=production npx sequelize db:seed:all
+
+
+Запуск daemon
+npm i pm2 -g
+
+pm2 start "npm run prod" --name hh.kz
+
+
+
+
+
+npx sequelize-cli db:migrate:undo
+npx sequelize-cli db:migrate
+npx sequelize-cli db:seed --seed 20250203064940-seedRole.js 
