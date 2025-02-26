@@ -1,6 +1,27 @@
 const Role = require('./models/Role')
 const User = require('./models/User')
 
+
+
+const authenticateJWT = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+  
+    if (authHeader) {
+      const token = authHeader.split(' ')[1]; // Bearer <token>
+  
+      jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+          return res.sendStatus(403); // Forbidden
+        }
+  
+        req.user = user; // Добавляем данные пользователя в запрос
+        next();
+      });
+    } else {
+      res.sendStatus(401); // Unauthorized
+    }
+  };
+  
 const isTeacher = async (req, res, next) => {
     console.log('isTeacher started     req.user= ',req.user)
     try {
@@ -90,5 +111,5 @@ module.exports = {
     isAdmin,
     isStudent,
     isTeacher,
-    validateSignUp
+    validateSignUp,authenticateJWT
 }

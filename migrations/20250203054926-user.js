@@ -32,6 +32,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      googleId: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true,
+      },
       roleId: {
         type: Sequelize.INTEGER,
         references: {

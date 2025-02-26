@@ -4,7 +4,7 @@ const {checkEmail,aUTH,verifyLink,sendVerificationEmail,verifyCode, signUp, logI
 companySearchByBin,companySearchByContactPhone,companySearchByName,companySearchByContactEmail,getAuthentificatedUserInfo,updateUserRole,
 getAllUsers
 }=require('./controllers')
-const {validateSignUp,isAdmin,isStudent,isTeacher} = require('./middlewares')
+const {validateSignUp,isAdmin,isStudent,isTeacher,authenticateJWT} = require('./middlewares')
 const {upload} = require('./utils')
 const passport = require('passport');
 const User =require('../auth/models/User')
@@ -18,23 +18,38 @@ router.post('/api/auth/verifycode',verifyCode )
 router.get('/api/auth/verifylink/:id',verifyLink )
 
 
+// Маршрут для начала аутентификации через Google
+// router.get(
+//   '/api/auth/google',
+//   passport.authenticate('google', { scope: ['openid', 'email', 'profile'] })
+// );
+
+// // Маршрут для обработки ответа от Google
+// router.get(
+//   '/api/auth/google/callback',
+//   passport.authenticate('google', { failureRedirect: '/login' }),
+//   (req, res) => {
+//     // Генерация JWT или перенаправление пользователя
+//     const token = generateJWT(req.user); // Функция для генерации JWT
+//     res.redirect(`http://localhost:3000/layout?token=${token}`);
+//   }
+// );
 router.get(
-  '/auth/google',
+  '/api/auth/google',
   passport.authenticate('google', { scope: ['openid', 'email', 'profile'] })
 );
 
-// Маршрут для обработки ответа от Google
+// Маршрут для обработки обратного вызова от Google
 router.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  '/api/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login', session: false }),
   (req, res) => {
-    // Генерируем JWT-токен
-    const token = jwt.sign({ id: req.user.id }, 'секретный_ключ', { expiresIn: '1h' });
-
-    // Перенаправляем пользователя с токеном
-    res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+    const { user, token } = req.user;
+    res.redirect(`http://localhost:3000/layout?token=${token}`);
   }
 );
+// Маршрут для обработки ответа от Google
+
 
 //----------------------------------------------------------------------------
 router.put('/api/users/:userId/role',passport.authenticate('jwt', {session: false}),isAdmin,updateUserRole )
