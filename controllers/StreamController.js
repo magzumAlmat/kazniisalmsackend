@@ -1,6 +1,51 @@
 const Course = require('../models/Courses');
 const User = require('../auth/models/User');
 const Stream = require('../models/Stream');
+const StreamStudent = require("../models/StreamStudents");
+
+
+exports.getStreamStudents = async (req, res) => {
+  try {
+    const { streamId } = req.params; // Получаем ID потока из параметров URL
+
+    // Проверяем, существует ли поток
+    const stream = await Stream.findByPk(streamId);
+    if (!stream) {
+      return res.status(404).json({ error: 'Поток не найден' });
+    }
+
+    // Получаем все записи StreamStudent для данного стрима
+    const streamStudents = await StreamStudent.findAll({
+      where: { streamId },
+      attributes: ['userId'], // Извлекаем только userId
+    });
+
+    // Проверяем, есть ли студенты
+    if (!streamStudents.length) {
+      return res.status(200).json({ message: 'В этом потоке нет студентов', students: [] });
+    }
+
+    // Извлекаем ID студентов
+    const studentIds = streamStudents.map((ss) => ss.userId);
+
+    // Получаем данные о студентах из таблицы User
+    const students = await User.findAll({
+      where: { id: studentIds, roleId: 3 }, // Убеждаемся, что это студенты (roleId: 3)
+      attributes: ['id', 'name', 'lastname', 'email'], // Указываем нужные поля
+    });
+
+    return res.status(200).json({
+      message: 'Список студентов потока',
+      students: students.map((student) => student.toJSON()), // Преобразуем в JSON
+    });
+  } catch (error) {
+    console.error('Ошибка при получении студентов потока:', error);
+    return res.status(500).json({ error: 'Ошибка сервера при получении студентов потока' });
+  }
+};
+
+
+
 
 
 
@@ -186,8 +231,10 @@ exports.addStudentsToStream = async (req, res) => {
 
   exports.removeStudentsFromStream = async (req, res) => {
     try {
-      const { studentIds } = req.body;
+      const { studentIds } = req.body; // Исправлено: берем из тела запроса
       const { streamId } = req.params;
+  
+      console.log('1 removeStudentsFromStream started', studentIds, streamId);
   
       const stream = await Stream.findByPk(streamId);
       if (!stream) {
