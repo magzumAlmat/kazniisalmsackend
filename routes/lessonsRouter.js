@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const lessonController = require('../controllers/lessonController');
+const lessonController = require('../controllers/LessonController');
 
 // Создать урок
 router.post('/lessons', lessonController.createLesson);
