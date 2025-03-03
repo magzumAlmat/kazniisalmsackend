@@ -101,7 +101,7 @@ const getAuthentificatedUserInfo=async(req,res)=>{
         },
       });
   
-      console.log('result',USER)
+      // console.log('result',USER)
       res.json(USER);
       
     } catch (error) {
@@ -207,7 +207,7 @@ const companySearchByName = async (req, res) => {
         },
       });
   
-      console.log('result',companies)
+      // console.log('result',companies)
       res.json(companies);
       
     } catch (error) {
@@ -222,7 +222,7 @@ const allCompanies   = async (req, res) => {
   try {
     const companies = await Company.findAll();
 
-    console.log('result',companies)
+    // console.log('result',companies)
     res.json(companies);
     
   } catch (error) {

@@ -58,7 +58,7 @@ router.post('/api/auth/addfullprofile',passport.authenticate('jwt', {session: fa
 
 
 
-router.get('/api/getallusers',getAllUsers)
+router.get('/api/getallusers',passport.authenticate('jwt', {session: false}),getAllUsers)
 
 router.get('/api/auth/getAuthentificatedUserInfo',passport.authenticate('jwt', {session: false}),getAuthentificatedUserInfo)
 router.post('/api/auth/inspector/verifycode',passport.authenticate('jwt', {session: false}),verifyCodeInspector )

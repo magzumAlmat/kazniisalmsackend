@@ -34,12 +34,23 @@ exports.createMaterial = async (req, res) => {
         message: "Missing required fields. Please provide 'title', 'type', 'file_path', and 'lesson_id'.",
       });
     }
+    
+    let finalFilePath;
+    if (type === "test") {
+      // Для тестов сохраняем только ссылку без префикса
+      finalFilePath = file_path;
+    } else {
+      // Для других типов добавляем префикс "http://localhost:4000/"
+      finalFilePath = `http://localhost:4000/${file_path}`;
+    }
+
+
 
     // Создаем новый материал в базе данных
     const newMaterial = await Material.create({
       title:title,
       type:type,
-      file_path :'http://localhost:4000/'+file_path,
+      file_path: finalFilePath,
       lesson_id:lesson_id,
     });
 

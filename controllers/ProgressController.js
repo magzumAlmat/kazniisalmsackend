@@ -16,6 +16,28 @@ exports.createProgress = async (req, res) => {
 };
 
 
+exports.initialProgress=async(req,res)=>{
+  console.log('0.1 Progress Initial started!')
+    try {
+      const { user_id, course_id } = req.body;
+  
+      console.log('1 user_id, course_id  ',user_id, course_id )
+      // Проверяем, существует ли курс
+      const course = await Course.findByPk(course_id);
+      if (!course) {
+        return res.status(404).json({ error: 'Course not found' });
+      }
+  
+      // Создаем начальные записи о прогрессе
+      await this.createInitialProgress(user_id, course_id);
+  
+      res.status(200).json({ message: 'User enrolled in the course successfully' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  
+}
+
 
 exports.getAllProgressesWithCourseProgress = async (req, res) => {
   try {
@@ -296,6 +318,7 @@ exports.assignProgress = async (req, res) => {
   }
 };
 
+
 // Получить запись о прогрессе по ID
 exports.getProgressById = async (req, res) => {
   try {
@@ -308,6 +331,7 @@ exports.getProgressById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 // exports.getProgressByUserId = async (req, res) => {
