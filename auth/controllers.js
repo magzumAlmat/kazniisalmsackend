@@ -312,8 +312,13 @@ const aUTH=async(req,res)=>{
     const verificationLink = `http://localhost:4000/api/auth/verifylink/${user.id}`;
     await sendEmail(
       user.email,
-      'Подтверждение регистрации',
-      `Для подтверждения регистрации перейдите по ссылке: ${verificationLink}`
+      "Подтверждение регистрации",
+      `<div style="font-family: Arial, sans-serif; padding: 20px;">
+      <h2 style="color: #1976d2;">Подтверждение регистрации</h2>
+      <p>Спасибо за регистрацию! Для подтверждения вашего email перейдите по ссылке ниже:</p>
+      <a href="${verificationLink}" style="display: inline-block; padding: 10px 20px; background-color: #1976d2; color: white; text-decoration: none; border-radius: 5px;">Подтвердить email</a>
+      <p style="color: #555;">Если вы не регистрировались, проигнорируйте это письмо.</p>
+    </div>`
     );
 
     res.status(201).json({ message: 'Пользователь зарегистрирован. Проверьте email для подтверждения.' });
@@ -354,7 +359,13 @@ const verifyLink=async(req,res)=>{
     // user.isVerified = true;
     await user.save();
     console.log('User= ',user)
-    res.status(200).json({ message: 'Email подтвержден' });
+
+   
+    res.redirect("http://localhost:3000/login?verified=success");
+  
+    // res.status(200).json({ message: 'Email подтвержден' })
+    
+
     
   } catch (error) {
     res.status(500).json({ error: error.message });

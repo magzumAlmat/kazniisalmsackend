@@ -14,7 +14,7 @@ function sendEmail(to,subject,text) {
       from: 'almat.magzum@gmail.com', 
       to: to, 
       subject: subject,
-      text: text
+      html:text,
     };
   // Отправляем письмо
   transporter.sendMail(mailOptions, (error, info) => {
