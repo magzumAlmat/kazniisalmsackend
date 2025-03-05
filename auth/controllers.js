@@ -25,7 +25,7 @@ const getAllUsers = async (req, res) => {
   try {
     // Получаем всех пользователей из базы данных
     const users = await User.findAll({
-      attributes: ['id', 'email', 'name', 'lastname', 'phone', 'roleId'], // Выбираем только нужные поля
+      attributes: ['id', 'email', 'name', 'lastname', 'phone', 'roleId','areasofactivity'], // Выбираем только нужные поля
       include: [
         {
           model: Role, // Подключаем связь с моделью Role
@@ -306,7 +306,7 @@ const aUTH=async(req,res)=>{
   const { email, password, phone, name, lastname,roleId } = req.body;
   console.log('roleId= ',roleId)
   try {
-    const user = await User.create({ email, password, phone, name, lastname,roleId });
+    const user = await User.create({ email, password, phone, name, lastname});
 
     // Отправка письма для подтверждения
     const verificationLink = `http://localhost:4000/api/auth/verifylink/${user.id}`;
@@ -355,7 +355,7 @@ const verifyLink=async(req,res)=>{
     if (!user) {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
-    user.roleId=3;
+    // user.roleId=3;
     // user.isVerified = true;
     await user.save();
     console.log('User= ',user)
@@ -364,9 +364,6 @@ const verifyLink=async(req,res)=>{
     res.redirect("http://localhost:3000/login?verified=success");
   
     // res.status(200).json({ message: 'Email подтвержден' })
-    
-
-    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -612,9 +609,9 @@ const verifyCodeInspector=async(req,res)=>{
 const addFullProfile = async (req, res) => {
   console.log('111 AddFullProfile Started', req.body);
 
-  const { password, phone, name, lastname } = req.body;
+  const { password, phone, name, lastname ,areasofactivity} = req.body;
 
-  console.log('AddFullProfile Started', password, phone, name, lastname);
+  console.log('AddFullProfile Started', password, phone, name, lastname,areasofactivity);
 
   // if (!phone || !/^\d{10}$/.test(phone)) {
   //   return res.status(400).json({ message: 'Некорректный номер телефона. Номер должен содержать 10 цифр.' });
@@ -657,6 +654,7 @@ const addFullProfile = async (req, res) => {
   user.phone = phone;
   user.name = name;
   user.lastname = lastname;
+  user.areasofactivity=areasofactivity;
 
   await user.save();
 

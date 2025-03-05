@@ -30,6 +30,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      areasofactivity: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       googleId: {
         type: DataTypes.STRING,
         allowNull: true,

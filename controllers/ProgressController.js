@@ -15,6 +15,30 @@ exports.createProgress = async (req, res) => {
   }
 };
 
+exports.updateFinishedStatus = async (req, res) => {
+  const { userId } = req.params;
+  const { isfinished } = req.body;
+
+  try {
+    // Обновляем все записи прогресса для пользователя
+    const [updatedCount] = await Progress.update(
+      { isfinished },
+      {
+        where: { user_id: userId },
+      }
+    );
+
+    if (updatedCount === 0) {
+      return res.status(404).json({ message: "Прогресс для пользователя не найден" });
+    }
+
+    res.status(200).json({ message: "Статус теста обновлен" });
+  } catch (error) {
+    console.error("Ошибка при обновлении статуса теста:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 exports.initialProgress=async(req,res)=>{
   console.log('0.1 Progress Initial started!')
@@ -128,6 +152,7 @@ exports.getAllProgressesWithCourseProgress = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 // Получить все записи о прогрессе
 exports.getAllProgresses = async (req, res) => {
   try {

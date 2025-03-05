@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const progressController = require('../controllers/ProgressController');
-const {createInitialProgress}=require('../controllers/ProgressController')
+const {createInitialProgress,updateFinishedStatus}=require('../controllers/ProgressController')
 const { isTeacher, isAdmin } = require('../routes/middlewares');
 const Course=require('../models/Courses')
 // Создать запись о прогрессе
+
+
+router.put("/course/progress/update-finished/:userId", updateFinishedStatus);
 router.post('/progresses', progressController.createProgress);
 
 // Получить все записи о прогрессе

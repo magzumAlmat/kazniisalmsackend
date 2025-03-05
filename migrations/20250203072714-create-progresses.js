@@ -27,6 +27,10 @@ module.exports = {
         type: Sequelize.STRING(50),
         defaultValue: 'not_started',
       },
+      isfinished: {
+        type: Sequelize.STRING(50),
+        defaultValue: 'no',
+      },
       completed_at: {
         type: Sequelize.DATE,
       },

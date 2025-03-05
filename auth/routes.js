@@ -76,7 +76,7 @@ router.get('/api/auth/getcompanybyname/:name',  passport.authenticate('jwt', {se
 router.get("/api/profile", passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
       const user = await User.findByPk(req.user.id, {
-        attributes: ["name", "lastname", "phone"], // Выбираем только нужные поля
+        attributes: ["name", "lastname", "phone","areasofactivity"], // Выбираем только нужные поля
       });
   
       if (!user) {
@@ -93,7 +93,7 @@ router.get("/api/profile", passport.authenticate("jwt", { session: false }), asy
   // Обновление данных профиля
   router.put("/api/profile", passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
-      const { name, lastname, phone } = req.body;
+      const { name, lastname, phone,areasofactivity } = req.body;
   
       const user = await User.findByPk(req.user.id);
   
@@ -105,6 +105,7 @@ router.get("/api/profile", passport.authenticate("jwt", { session: false }), asy
       user.name = name;
       user.lastname = lastname;
       user.phone = phone;
+      user.areasofactivity=areasofactivity;
   
       await user.save();
   

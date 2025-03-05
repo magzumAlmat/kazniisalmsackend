@@ -257,11 +257,13 @@ app.use('/api', exerciseRoutes);
 app.use('/api', progressRoutes);
 app.use('/api', streamRoutes);
 app.use("/api", fileRoutes);
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+
 // Настройка Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

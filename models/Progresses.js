@@ -31,6 +31,11 @@ const Progress = sequelize.define('Progress', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  isfinished: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'no',
+  },
 }, {
   tableName: 'progresses',
   timestamps: true,
