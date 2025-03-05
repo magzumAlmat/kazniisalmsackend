@@ -281,7 +281,9 @@ const fileFilter = (req, file, cb) => {
     "image/vnd.djvu", // DJVU
     "image/x-djvu", // DJVU (альтернативный MIME-тип)
     "video/mp4", // MP4
-    "*/*"
+    "*/*",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+
   ];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
