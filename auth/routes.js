@@ -2,7 +2,7 @@ const express=require('express')
 const router=express.Router()
 const {checkEmail,aUTH,verifyLink,sendVerificationEmail,verifyCode, signUp, logIn,createCompany,verifyCodeInspector,addFullProfile,allCompanies,
 companySearchByBin,companySearchByContactPhone,companySearchByName,companySearchByContactEmail,getAuthentificatedUserInfo,updateUserRole,
-getAllUsers
+getAllUsers,forgotPassword,resetPassword
 }=require('./controllers')
 const {validateSignUp,isAdmin,isStudent,isTeacher,authenticateJWT} = require('./middlewares')
 const {upload} = require('./utils')
@@ -17,6 +17,8 @@ router.post('/api/auth/login',logIn )
 router.post('/api/auth/verifycode',verifyCode )
 router.get('/api/auth/verifylink/:id',verifyLink )
 
+router.post('/api/forgot-password', forgotPassword);
+router.post('/api/reset-password', resetPassword);
 
 // Маршрут для начала аутентификации через Google
 // router.get(

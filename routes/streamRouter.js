@@ -8,6 +8,7 @@ const { isTeacher, isAdmin } = require('./middlewares');
 
 router.post('/stream', createStream);
 router.post('/streams/:streamId/students', addStudentsToStream);
+        //  api/streams/getstudentsbystreamid/
 router.get('/streams/getstudentsbystreamid/:streamId',getStreamStudents)
 router.post('/streams/:streamId/remove-students',removeStudentsFromStream)
 router.get('/streams',getAllStreams)

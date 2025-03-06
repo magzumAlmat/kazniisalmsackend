@@ -31,7 +31,7 @@ exports.getStreamStudents = async (req, res) => {
     // Получаем данные о студентах из таблицы User
     const students = await User.findAll({
       where: { id: studentIds, roleId: 3 }, // Убеждаемся, что это студенты (roleId: 3)
-      attributes: ['id', 'name', 'lastname', 'email'], // Указываем нужные поля
+      attributes: ['id', 'name', 'lastname', 'email','areasofactivity'], // Указываем нужные поля
     });
 
     return res.status(200).json({

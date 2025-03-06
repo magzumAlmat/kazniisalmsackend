@@ -17,8 +17,96 @@ const {jwtOptions,passport} = require('./passport');
 const Company= require('./models/Company')
 const sendEmail = require('../auth/utils/sendMail')
 
+const PasswordResetToken = require('../auth/models/PasswordResetToken');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // Ваш email
+    pass: process.env.EMAIL_PASS, // Пароль или app-specific password
+  },
+});
+
+// Запрос на сброс пароля
+const forgotPassword = async (req, res) => {
+  console.log('ForgotPassword started!')
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь с таким email не найден' });
+    }
+
+    // Генерация токена
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1 час
+
+    // Сохранение токена в базе
+    await PasswordResetToken.create({
+      userId: user.id,
+      token,
+      expiresAt,
+    });
+
+    // Формирование ссылки для сброса
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    // Отправка письма
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Сброс пароля',
+      text: `Для сброса пароля перейдите по ссылке: ${resetLink}. Ссылка действительна 1 час.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Письмо для сброса пароля отправлено' });
+  } catch (error) {
+    console.error('Ошибка при запросе сброса пароля:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+};
+
+// Сброс пароля
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const resetToken = await PasswordResetToken.findOne({
+      where: { token },
+      include: [{ model: User, as: 'User' }],
+    });
+
+    if (!resetToken || resetToken.expiresAt < new Date()) {
+      return res.status(400).json({ error: 'Токен недействителен или истек' });
+    }
+
+    const user = resetToken.User;
+    user.password = newPassword; // Пароль будет захеширован в beforeUpdate
+    await user.save();
+
+    // Удаляем использованный токен
+    await resetToken.destroy();
+
+    res.status(200).json({ message: 'Пароль успешно изменен' });
+  } catch (error) {
+    console.error('Ошибка при сбросе пароля:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+};
+
+// Хеширование пароля перед обновлением
+User.beforeUpdate(async (user) => {
+  if (user.changed('password')) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+});
 
 const getAllUsers = async (req, res) => {
   console.log('getAllUsers started!')
@@ -802,7 +890,7 @@ const signUp = async (req, res) =>{
 
 module.exports={aUTH,verifyLink,checkEmail,
     sendVerificationEmail,allCompanies,
-    verifyCode,
+    verifyCode,forgotPassword,resetPassword,
     signUp,
     logIn,getAuthentificatedUserInfo,
     createCompany,addFullProfile,updateUserRole,getAllUsers,

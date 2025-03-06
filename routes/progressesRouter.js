@@ -8,6 +8,7 @@ const Course=require('../models/Courses')
 
 
 router.put("/course/progress/update-finished/:userId", updateFinishedStatus);
+
 router.post('/progresses', progressController.createProgress);
 
 // Получить все записи о прогрессе
