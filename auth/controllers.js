@@ -91,27 +91,52 @@ const updateUserRole = async (req, res) => {
   }
 };
 
-const getAuthentificatedUserInfo=async(req,res)=>{
-  console.log('reqUSER fROM getAuthentificatedUserInfo= ',req.user.id)
+// const getAuthentificatedUserInfo=async(req,res)=>{
+//   console.log('reqUSER fROM getAuthentificatedUserInfo= ',req.user.id)
 
-    try {
-      const USER = await User.findOne({
-        where: {
-          id: req.user.id
-        },
-      });
+//     try {
+//       const USER = await User.findOne({
+//         where: {
+//           id: req.user.id
+//         },
+//       });
   
-      // console.log('result',USER)
-      res.json(USER);
+    
+//       res.json(USER);
       
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Failed to search by name' });
+//     } catch (error) {
+//       console.error('Error:', error);
+//       res.status(500).json({ error: 'Failed to search by name' });
+//     }
+
+
+
+// }
+
+
+const getAuthentificatedUserInfo = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Токен отсутствует" });
     }
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id, {
+      attributes: { exclude: ["password"] }, // Исключаем пароль из ответа
+    });
 
+    if (!user) {
+      return res.status(404).json({ error: "Пользователь не найден" });
+    }
 
-}
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Ошибка в getAuthenticatedUserInfo:", error);
+    res.status(401).json({ error: "Недействительный токен" });
+  }
+};
+
 
 const createCompany=async(req,res)=>{
     

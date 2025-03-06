@@ -16,6 +16,7 @@ exports.createProgress = async (req, res) => {
 };
 
 exports.updateFinishedStatus = async (req, res) => {
+  console.log('updateFinishedStatus userId= ',req.params.userId)
   const { userId } = req.params;
   const { isfinished } = req.body;
 

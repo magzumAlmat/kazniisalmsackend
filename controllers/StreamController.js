@@ -128,26 +128,40 @@ exports.addStudentsToStream = async (req, res) => {
 
   exports.getAllStreams = async (req, res) => {
     try {
-      const streams = await Stream.findAll({
-        include: [
-          { model: Course, as: 'course' }, // Включаем данные о курсе
-          { model: User, as: 'teacher' }, // Включаем данные об учителе
-        ],
-      });
-  
-      if (!streams.length) {
-        return res.status(404).json({ error: 'Потоки не найдены' });
+      const streams = await Stream.findAll();
+      if (!streams || streams.length === 0) {
+        return res.status(404).json({ error: "Потоки не найдены" });
       }
-  
-      return res.status(200).json({
-        message: 'Список потоков',
-        streams: streams.map((stream) => stream.toJSON()),
-      });
+      res.status(200).json({ streams });
     } catch (error) {
-      console.error('Ошибка при получении потоков:', error);
-      return res.status(500).json({ error: 'Ошибка сервера при получении потоков' });
+      console.error("Ошибка при получении потоков:", error);
+      res.status(500).json({ error: "Ошибка сервера" });
     }
   };
+
+
+  // exports.getAllStreams = async (req, res) => {
+  //   try {
+  //     const streams = await Stream.findAll({
+  //       include: [
+  //         { model: Course, as: 'course' }, // Включаем данные о курсе
+  //         { model: User, as: 'teacher' }, // Включаем данные об учителе
+  //       ],
+  //     });
+  
+  //     if (!streams.length) {
+  //       return res.status(404).json({ error: 'Потоки не найдены' });
+  //     }
+  
+  //     return res.status(200).json({
+  //       message: 'Список потоков',
+  //       streams: streams.map((stream) => stream.toJSON()),
+  //     });
+  //   } catch (error) {
+  //     console.error('Ошибка при получении потоков:', error);
+  //     return res.status(500).json({ error: 'Ошибка сервера при получении потоков' });
+  //   }
+  // };
 
 
   exports.getStreamById = async (req, res) => {
