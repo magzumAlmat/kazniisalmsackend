@@ -21,7 +21,7 @@ const PasswordResetToken = require('../auth/models/PasswordResetToken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
-
+require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -422,7 +422,7 @@ const aUTH=async(req,res)=>{
     const user = await User.create({ email, password, phone, name, lastname});
 
     // Отправка письма для подтверждения
-    const verificationLink = `http://localhost:4000/api/auth/verifylink/${user.id}`;
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verifylink/${user.id}`;
     await sendEmail(
       user.email,
       "Подтверждение регистрации",
@@ -474,7 +474,7 @@ const verifyLink=async(req,res)=>{
     console.log('User= ',user)
 
    
-    res.redirect("http://localhost:3000/login?verified=success");
+    res.redirect(`${process.env.FRONTEND_URL}/login?verified=success`);
   
     // res.status(200).json({ message: 'Email подтвержден' })
   } catch (error) {

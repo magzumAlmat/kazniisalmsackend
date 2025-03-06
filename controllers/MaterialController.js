@@ -1,6 +1,6 @@
 const  Material  = require('../models/Materials');
 
-
+require('dotenv').config();
 // Создать материал
 // exports.createMaterial = async (req, res) => {
 //   console.log('1 Create material req.body= ',req.body)
@@ -41,7 +41,7 @@ exports.createMaterial = async (req, res) => {
       finalFilePath = file_path;
     } else {
       // Для других типов добавляем префикс "http://localhost:4000/"
-      finalFilePath = `http://localhost:4000/${file_path}`;
+      finalFilePath = `${process.env.BACKEND_URL}/${file_path}`;
     }
 
 

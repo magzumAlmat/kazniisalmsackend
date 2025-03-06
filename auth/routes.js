@@ -8,6 +8,7 @@ const {validateSignUp,isAdmin,isStudent,isTeacher,authenticateJWT} = require('./
 const {upload} = require('./utils')
 const passport = require('passport');
 const User =require('../auth/models/User')
+require('dotenv').config();
 //авторизация------------------------------------------------------------------
 router.get('/api/auth/check-email', checkEmail);
 
@@ -47,7 +48,7 @@ router.get(
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
   (req, res) => {
     const { user, token } = req.user;
-    res.redirect(`http://localhost:3000/layout?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/layout?token=${token}`);
   }
 );
 // Маршрут для обработки ответа от Google
