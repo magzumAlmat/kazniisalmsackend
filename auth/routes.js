@@ -9,6 +9,7 @@ const {upload} = require('./utils')
 const passport = require('passport');
 const User =require('../auth/models/User')
 require('dotenv').config();
+const { Op } = require("sequelize");
 //авторизация------------------------------------------------------------------
 router.get('/api/auth/check-email', checkEmail);
 
@@ -94,32 +95,69 @@ router.get("/api/profile", passport.authenticate("jwt", { session: false }), asy
   });
   
   // Обновление данных профиля
-  router.put("/api/profile", passport.authenticate("jwt", { session: false }), async (req, res) => {
-    try {
-      const { name, lastname, phone,areasofactivity } = req.body;
+  // router.put("/api/profile", passport.authenticate("jwt", { session: false }), async (req, res) => {
+  //   try {
+  //     const { name, lastname, phone,areasofactivity } = req.body;
   
-      const user = await User.findByPk(req.user.id);
+  //     const user = await User.findByPk(req.user.id);
   
-      if (!user) {
-        return res.status(404).send({ message: "Пользователь не найден" });
-      }
+  //     if (!user) {
+  //       return res.status(404).send({ message: "Пользователь не найден" });
+  //     }
   
-      // Обновляем данные пользователя
-      user.name = name;
-      user.lastname = lastname;
-      user.phone = phone;
-      user.areasofactivity=areasofactivity;
+  //     // Обновляем данные пользователя
+  //     user.name = name;
+  //     user.lastname = lastname;
+  //     user.phone = phone;
+  //     user.areasofactivity=areasofactivity;
   
-      await user.save();
+  //     await user.save();
   
-      res.json({ message: "Профиль успешно обновлен" });
-    } catch (error) {
-      console.error("Ошибка при обновлении профиля:", error);
-      res.status(500).send({ message: "Ошибка сервера" });
-    }
-  });
+  //     res.json({ message: "Профиль успешно обновлен" });
+  //   } catch (error) {
+  //     console.error("Ошибка при обновлении профиля:", error);
+  //     res.status(500).send({ message: "Ошибка сервера" });
+  //   }
+  // });
 
   
+router.put("/api/profile", passport.authenticate("jwt", { session: false }), async (req, res) => {
+  try {
+    const { name, lastname, phone, areasofactivity } = req.body;
+
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "Пользователь не найден" });
+    }
+
+    // Проверка уникальности номера телефона
+    if (phone && phone !== user.phone) { // Проверяем только если телефон изменился
+      const existingUser = await User.findOne({
+        where: {
+          phone,
+          id: { [Op.ne]: req.user.id }, // Исключаем текущего пользователя
+        },
+      });
+      if (existingUser) {
+        return res.status(400).json({ message: "Такой номер телефона уже существует" });
+      }
+    }
+
+    // Обновляем данные пользователя, только если они переданы
+    user.name = name || user.name;
+    user.lastname = lastname || user.lastname;
+    user.phone = phone || user.phone;
+    user.areasofactivity = areasofactivity || user.areasofactivity;
+
+    await user.save();
+
+    res.status(200).json({ message: "Профиль успешно обновлен" });
+  } catch (error) {
+    console.error("Ошибка при обновлении профиля:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+});
 
 
 router.post('/api/auth/login', logIn)
