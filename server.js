@@ -284,7 +284,16 @@ const fileFilter = (req, file, cb) => {
     "image/x-djvu", // DJVU (альтернативный MIME-тип)
     "video/mp4", // MP4
     "*/*",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    // Добавленные форматы изображений
+    "image/jpeg", // JPEG, JPG
+    "image/png", // PNG
+    "image/gif", // GIF
+    "image/bmp", // BMP
+    "image/webp", // WebP
+    "image/tiff", // TIFF
+    "image/x-icon", // ICO (иконки)
+    "image/svg+xml" // SVG
 
   ];
   if (allowedTypes.includes(file.mimetype)) {
