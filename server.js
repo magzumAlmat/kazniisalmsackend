@@ -236,8 +236,10 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+app.use(express.json({ limit: "200mb" })); // Увеличиваем лимит для JSON 200 mb
+app.use(express.urlencoded({ extended: true, limit: "900mb" })); // Увеличиваем лимит для URL-encoded данных 900mb
+
 app.use(passport.initialize());
 
 // Роутеры
@@ -303,35 +305,52 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// const upload = multer({
+//   storage: storage,
+//   limits: {
+//     fileSize: 1024 * 1024 * 900, // Максимальный размер файла: 900MB
+//   },
+//   fileFilter: fileFilter,
+// });
+
+// Обработчик загрузки файлов
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 1024 * 1024 * 900, // Максимальный размер файла: 900MB
+    fileSize: 1024 * 1024 * 900, // 900MB
   },
   fileFilter: fileFilter,
-});
+}).single("file");
 
 // Обработчик загрузки файлов
-app.post("/api/upload", upload.single("file"), async (req, res) => {
+app.post("/api/upload", (req, res, next) => {
+  upload(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      console.error("Multer error:", err);
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({ message: "File too large. Maximum size allowed is 900MB." });
+      }
+      return res.status(500).json({ message: "Multer error: " + err.message });
+    } else if (err) {
+      console.error("Other upload error:", err);
+      return res.status(500).json({ message: err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
 
     const { originalname, path: filePath } = req.file;
-    const correctName = req.body.name || originalname; // Используем имя из тела запроса или оригинальное имя файла
+    const correctName = req.body.name || originalname;
 
     console.log("File uploaded to folder:", correctName);
 
-    // Переименовываем файл
-    const newFilePath = path.join(
-      path.dirname(filePath),
-      correctName + path.extname(originalname)
-    );
-
+    const newFilePath = path.join(path.dirname(filePath), correctName + path.extname(originalname));
     await fs.promises.rename(filePath, newFilePath);
 
-    // Создаем запись в базе данных
     const newFile = await File.create({
       name: correctName,
       path: newFilePath,
@@ -344,18 +363,54 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
       newFile,
     });
   } catch (error) {
-    if (error instanceof multer.MulterError) {
-      // Обработка ошибок Multer
-      if (error.code === "LIMIT_FILE_SIZE") {
-        return res.status(413).json({ message: "File too large. Maximum size allowed is 900MB." });
-      }
-    } else {
-      // Обработка других ошибок
-      console.error("Error uploading file:", error);
-      res.status(500).json({ message: "File upload failed." });
-    }
+    console.error("Error uploading file:", error);
+    res.status(500).json({ message: "File upload failed." });
   }
 });
+// app.post("/api/upload", upload.single("file"), async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).send("No file uploaded.");
+//     }
+
+//     const { originalname, path: filePath } = req.file;
+//     const correctName = req.body.name || originalname; // Используем имя из тела запроса или оригинальное имя файла
+
+//     console.log("File uploaded to folder:", correctName);
+
+//     // Переименовываем файл
+//     const newFilePath = path.join(
+//       path.dirname(filePath),
+//       correctName + path.extname(originalname)
+//     );
+
+//     await fs.promises.rename(filePath, newFilePath);
+
+//     // Создаем запись в базе данных
+//     const newFile = await File.create({
+//       name: correctName,
+//       path: newFilePath,
+//       originalname: correctName,
+//       mimetype: req.file.mimetype,
+//     });
+
+//     res.status(201).json({
+//       message: "File uploaded and renamed successfully!",
+//       newFile,
+//     });
+//   } catch (error) {
+//     if (error instanceof multer.MulterError) {
+//       // Обработка ошибок Multer
+//       if (error.code === "LIMIT_FILE_SIZE") {
+//         return res.status(413).json({ message: "File too large. Maximum size allowed is 900MB." });
+//       }
+//     } else {
+//       // Обработка других ошибок
+//       console.error("Error uploading file:", error);
+//       res.status(500).json({ message: "File upload failed." });
+//     }
+//   }
+// });
 
 // Статическая раздача файлов
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
