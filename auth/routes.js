@@ -2,7 +2,7 @@ const express=require('express')
 const router=express.Router()
 const {checkEmail,aUTH,verifyLink,sendVerificationEmail,verifyCode, signUp, logIn,createCompany,verifyCodeInspector,addFullProfile,allCompanies,
 companySearchByBin,companySearchByContactPhone,companySearchByName,companySearchByContactEmail,getAuthentificatedUserInfo,updateUserRole,getAllUsers,forgotPassword,resetPassword,
-}=require('./controllers')
+exportReviewsToExcel}=require('./controllers')
 const {validateSignUp,isAdmin,isStudent,isTeacher,authenticateJWT} = require('./middlewares')
 const {upload} = require('./utils')
 const passport = require('passport');
@@ -20,7 +20,7 @@ router.get('/api/auth/verifylink/:id',verifyLink )
 
 router.post('/api/forgot-password', forgotPassword);
 router.post('/api/auth/reset-password', resetPassword);
-
+router.get('/api/export-reviews', exportReviewsToExcel);
 // Маршрут для начала аутентификации через Google
 // router.get(
 //   '/api/auth/google',

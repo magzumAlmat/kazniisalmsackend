@@ -16,7 +16,7 @@ const Role = require('./models/Role')
 const {jwtOptions,passport} = require('./passport');
 const Company= require('./models/Company')
 const sendEmail = require('../auth/utils/sendMail')
-
+const ExcelJS = require('exceljs');
 const PasswordResetToken = require('../auth/models/PasswordResetToken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
@@ -932,8 +932,101 @@ const signUp = async (req, res) =>{
 // }
 
 
+
+const exportReviewsToExcel = async (req, res) => {
+    try {
+        // Получаем всех пользователей с их отзывами
+        const users = await User.findAll({
+            attributes: ['id', 'email', 'name', 'lastname', 'review'], // Выбираем нужные поля
+            where: {
+                review: {
+                    [Op.ne]: null // Фильтруем только пользователей с непустыми отзывами
+                }
+            },
+            raw: true // Возвращаем данные в виде простого объекта
+        });
+
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'Отзывы не найдены' });
+        }
+
+        // Создаем новую рабочую книгу Excel
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'Your App'; // Автор файла
+        workbook.created = new Date(); // Дата создания
+
+        // Добавляем лист в книгу
+        const worksheet = workbook.addWorksheet('Reviews');
+
+        // Определяем заголовки столбцов
+        worksheet.columns = [
+            { header: 'ID', key: 'id', width: 10 },
+            { header: 'Email', key: 'email', width: 30 },
+            { header: 'Имя', key: 'name', width: 20 },
+            { header: 'Фамилия', key: 'lastname', width: 20 },
+            { header: 'Отзыв', key: 'review', width: 50 },
+        ];
+
+        // Стили для заголовков
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFDDDDDD' } // Серый фон для заголовков
+        };
+
+        // Добавляем данные пользователей в таблицу, извлекая только поле data.text
+        users.forEach(user => {
+            let reviewText = 'Нет отзыва';
+            try {
+                // Парсим JSON из строки review
+                const reviewData = JSON.parse(user.review);
+                // Извлекаем текст из всех блоков
+                if (reviewData && reviewData.blocks && reviewData.blocks.length > 0) {
+                    reviewText = reviewData.blocks
+                        .map(block => block.data?.text || '') // Берем только data.text
+                        .filter(text => text) // Убираем пустые строки
+                        .join('\n'); // Объединяем тексты из блоков с переносом строки
+                }
+            } catch (error) {
+                console.error(`Ошибка парсинга отзыва для пользователя ${user.id}:`, error);
+                reviewText = 'Ошибка при парсинге отзыва';
+            }
+
+            worksheet.addRow({
+                id: user.id,
+                email: user.email,
+                name: user.name || 'Не указано',
+                lastname: user.lastname || 'Не указано',
+                review: reviewText
+            });
+        });
+
+        // Настраиваем автофильтр для таблицы
+        worksheet.autoFilter = {
+            from: 'A1',
+            to: `E${users.length + 1}`
+        };
+
+        // Устанавливаем заголовки для скачивания файла
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="User_Reviews.xlsx"');
+
+        // Записываем файл в поток и отправляем его клиенту
+        await workbook.xlsx.write(res);
+        res.end();
+
+    } catch (error) {
+        console.error('Ошибка при экспорте отзывов в Excel:', error);
+        res.status(500).json({ message: 'Ошибка сервера при экспорте отзывов' });
+    }
+};
+
+module.exports = { exportReviewsToExcel };
+
 module.exports={aUTH,verifyLink,checkEmail,
-    sendVerificationEmail,allCompanies,
+    sendVerificationEmail,allCompanies,exportReviewsToExcel,
     verifyCode,forgotPassword,resetPassword,
     signUp,
     logIn,getAuthentificatedUserInfo,
