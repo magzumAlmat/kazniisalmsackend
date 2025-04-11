@@ -54,7 +54,7 @@ const forgotPassword = async (req, res) => {
     });
 
     // Формирование ссылки для сброса
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const resetLink = `https://lms.kazniisa.kz/reset-password?token=${token}`;
 
     // Отправка письма
     const mailOptions = {
@@ -74,6 +74,7 @@ const forgotPassword = async (req, res) => {
 
 // Сброс пароля
 const resetPassword = async (req, res) => {
+  console.log('resetPasswordStarted!')
   const { token, newPassword } = req.body;
 
   try {

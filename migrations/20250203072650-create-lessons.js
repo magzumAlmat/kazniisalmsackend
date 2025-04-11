@@ -15,6 +15,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      isReviewLesson: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+      },
       course_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

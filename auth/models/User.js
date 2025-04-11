@@ -34,6 +34,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      review: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       googleId: {
         type: DataTypes.STRING,
         allowNull: true,

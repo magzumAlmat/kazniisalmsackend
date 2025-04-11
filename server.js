@@ -251,6 +251,7 @@ const progressRoutes = require('./routes/progressesRouter');
 const streamRoutes = require('./routes/streamRouter');
 const fileRoutes = require('./routes/fileRouter');
 
+
 app.use(require('./auth/routes'));
 app.use('/api', courseRouter);
 app.use('/api', materialRoutes);

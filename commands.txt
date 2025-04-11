@@ -40,7 +40,7 @@ pm2 start "npm run prod" --name hh.kz
 
 
 
-npx sequelize-cli db:migrate:undo
+npx sequelize-cli db:migrate:undo:all
 npx sequelize-cli db:migrate
 npx sequelize-cli db:seed --seed 20250203064940-seedRole.js 
 mkdir uploads

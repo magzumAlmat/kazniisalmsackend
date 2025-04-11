@@ -16,6 +16,10 @@ const Lesson = sequelize.define('Lesson', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  isReviewLesson: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+  },
   course_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
