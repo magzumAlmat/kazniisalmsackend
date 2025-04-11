@@ -73,8 +73,35 @@ const forgotPassword = async (req, res) => {
 };
 
 // Сброс пароля
+// const resetPassword = async (req, res) => {
+//   console.log('resetPasswordStarted!')
+//   const { token, newPassword } = req.body;
+
+//   try {
+//     const resetToken = await PasswordResetToken.findOne({
+//       where: { token },
+//       include: [{ model: User, as: 'User' }],
+//     });
+
+//     if (!resetToken || resetToken.expiresAt < new Date()) {
+//       return res.status(400).json({ error: 'Токен недействителен или истек' });
+//     }
+
+//     const user = resetToken.User;
+//     user.password = newPassword; // Пароль будет захеширован в beforeUpdate
+//     await user.save();
+
+//     // Удаляем использованный токен
+//     await resetToken.destroy();
+
+//     res.status(200).json({ message: 'Пароль успешно изменен' });
+//   } catch (error) {
+//     console.error('Ошибка при сбросе пароля:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// };
 const resetPassword = async (req, res) => {
-  console.log('resetPasswordStarted!')
+  console.log('1 resetPassword started ', req.body);
   const { token, newPassword } = req.body;
 
   try {
@@ -82,18 +109,26 @@ const resetPassword = async (req, res) => {
       where: { token },
       include: [{ model: User, as: 'User' }],
     });
-
-    if (!resetToken || resetToken.expiresAt < new Date()) {
+    console.log('2 resetToken=', resetToken);
+    
+    if (!resetToken) {
+      console.log('Token not found');
+      return res.status(400).json({ error: 'Токен недействителен или истек' });
+    }
+    
+    console.log('3 expiresAt=', resetToken.expiresAt, 'now=', new Date());
+    if (resetToken.expiresAt < new Date()) {
+      console.log('Token expired');
       return res.status(400).json({ error: 'Токен недействителен или истек' });
     }
 
     const user = resetToken.User;
-    user.password = newPassword; // Пароль будет захеширован в beforeUpdate
+    console.log('4 user before save=', user);
+    user.password = newPassword;
     await user.save();
+    console.log('5 user after save=', user);
 
-    // Удаляем использованный токен
     await resetToken.destroy();
-
     res.status(200).json({ message: 'Пароль успешно изменен' });
   } catch (error) {
     console.error('Ошибка при сбросе пароля:', error);
@@ -102,10 +137,18 @@ const resetPassword = async (req, res) => {
 };
 
 // Хеширование пароля перед обновлением
+// User.beforeUpdate(async (user) => {
+//   if (user.changed('password')) {
+//     const salt = await bcrypt.genSalt(10);
+//     user.password = await bcrypt.hash(user.password, salt);
+//   }
+// });
 User.beforeUpdate(async (user) => {
   if (user.changed('password')) {
+    console.log('Password changed, hashing...');
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
+    console.log('Password hashed');
   }
 });
 
