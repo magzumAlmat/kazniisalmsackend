@@ -36,10 +36,13 @@ exports.createMaterial = async (req, res) => {
     }
     
     let finalFilePath;
-    if (type === "test") {
-      // Для тестов сохраняем только ссылку без префикса
+    if (type === 'test' || type === 'opros') {
+      // Для тестов и опросов сохраняем только ссылку без префикса
       finalFilePath = file_path;
-    } else {
+
+    } 
+    
+    else {
       // Для других типов добавляем префикс "http://localhost:4000/"
       finalFilePath = `${process.env.BACKEND_URL}/${file_path}`;
     }
