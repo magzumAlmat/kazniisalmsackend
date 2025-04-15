@@ -466,7 +466,7 @@ const aUTH=async(req,res)=>{
     const user = await User.create({ email, password, phone, name, lastname});
 
     // Отправка письма для подтверждения
-    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verifylink/${user.id}`;
+    const verificationLink = `${process.env.VERIFY_URL}/api/auth/verifylink/${user.id}`;
     await sendEmail(
       user.email,
       "Подтверждение регистрации",
