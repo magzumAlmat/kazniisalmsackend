@@ -518,7 +518,7 @@ const verifyLink=async(req,res)=>{
     console.log('User= ',user)
 
    
-    res.redirect(`${process.env.FRONTEND_URL}/login?verified=success`);
+    res.redirect(`${process.env.VERIFY_URL}/login?verified=success`);
   
     // res.status(200).json({ message: 'Email подтвержден' })
   } catch (error) {
