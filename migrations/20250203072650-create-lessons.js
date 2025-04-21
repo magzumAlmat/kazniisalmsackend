@@ -19,6 +19,11 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: true,
       },
+      priority_config:{
+          type: Sequelize.JSONB, // или Sequelize.JSON для других БД
+          allowNull: true,
+          defaultValue: { EditorJS: 1, Video: 2, AdditionalMaterials: 3 },
+      },
       course_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

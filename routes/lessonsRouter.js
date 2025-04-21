@@ -18,6 +18,6 @@ router.put('/lessons/:id', lessonController.updateLesson);
 router.delete('/lessons/:id', lessonController.deleteLesson);
 
 router.post('/lessons/review', lessonController.submitReview);
-
-
+router.post('/lessons/:id/priority',lessonController.setLessonPriority)
+router.get('/lessons/:id/priority',lessonController.getLessonPriority)
 module.exports = router;

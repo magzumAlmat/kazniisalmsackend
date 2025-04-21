@@ -20,6 +20,11 @@ const Lesson = sequelize.define('Lesson', {
     type: DataTypes.BOOLEAN,
     allowNull: true,
   },
+  priority_config: {
+    type: DataTypes.JSONB, // или DataTypes.JSON
+    allowNull: true,
+    defaultValue: { EditorJS: 1, Video: 2, AdditionalMaterials: 3 },
+  },
   course_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
