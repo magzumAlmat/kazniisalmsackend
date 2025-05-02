@@ -296,7 +296,8 @@ const fileFilter = (req, file, cb) => {
     "image/webp", // WebP
     "image/tiff", // TIFF
     "image/x-icon", // ICO (иконки)
-    "image/svg+xml" // SVG
+    "image/svg+xml", // SVG
+    "audio/wav"
 
   ];
   if (allowedTypes.includes(file.mimetype)) {

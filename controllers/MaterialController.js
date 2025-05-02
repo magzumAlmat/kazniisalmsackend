@@ -35,18 +35,30 @@ exports.createMaterial = async (req, res) => {
       });
     }
     
+    // let finalFilePath;
+    // if (type === 'test' || type === 'opros') {
+    //   // Для тестов и опросов сохраняем только ссылку без префикса
+    //   finalFilePath = file_path;
+
+    // } 
+    
+    // else {
+    //   // Для других типов добавляем префикс "http://localhost:4000/"
+    //   finalFilePath = `${process.env.BACKEND_URL}/${file_path}`;
+    // }
+
     let finalFilePath;
     if (type === 'test' || type === 'opros') {
-      // Для тестов и опросов сохраняем только ссылку без префикса
+      // For tests and surveys, use the provided file_path
       finalFilePath = file_path;
-
-    } 
-    
-    else {
-      // Для других типов добавляем префикс "http://localhost:4000/"
+    } else if (type === 'audio') {
+      // For audio files (e.g., WAV), add the backend URL
+      finalFilePath = `${process.env.BACKEND_URL}/${file_path}`;
+    } else {
+      // For other types, add the backend URL
       finalFilePath = `${process.env.BACKEND_URL}/${file_path}`;
     }
-
+    
 
 
     // Создаем новый материал в базе данных
